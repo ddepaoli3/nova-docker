@@ -18,6 +18,7 @@
 A Docker Hypervisor which allows running Linux Containers instead of VMs.
 """
 
+import base64 #for fix environment docker
 import os
 import socket
 import time
@@ -394,6 +395,10 @@ class DockerDriver(driver.ComputeDriver):
         if (image_meta and
                 image_meta.get('properties', {}).get('os_command_line')):
             args['command'] = image_meta['properties'].get('os_command_line')
+
+        #Fix environment problem
+        if instance['user_data'] is not None:
+            args['environment'] = base64.b64decode(instance['user_data'])
 
         container_id = self._create_container(instance, image_name, args)
         if not container_id:
